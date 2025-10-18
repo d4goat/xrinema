@@ -1,3 +1,10 @@
+interface Company {
+    id: number
+    logo_path: string | null
+    name: string
+    origin_country: string
+}
+
 interface Movie{
     id: number;
     adult: boolean;
@@ -15,4 +22,35 @@ interface Movie{
     vote_count: number;
 }
 
-export type { Movie }
+interface MovieDetail extends Movie{
+    genres?: {id: number, name: string}[];
+    runtime: number;
+    budget: number;
+    homepage: string | null;
+    imdb_id: number | string;
+    origin_country: string[]
+    production_companies: Company[];
+    production_countries: { iso_3166_1: string, name: string }[];
+    revenue: number;
+    spoken_languages: { english_name: string, iso_639_1: string, name: string }[];
+    status: string;
+    tagline: string | null;
+}
+
+interface Video {
+    id: string;
+    iso_639_1: string;
+    iso_3166_1: string;
+    key: string;
+    name: string;
+    site: string;
+    size: number;
+    type: string;
+}
+
+interface VideoResponse {
+    id: number;
+    results: Video[];
+}
+
+export type { Movie, MovieDetail, Video, VideoResponse }

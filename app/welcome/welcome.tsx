@@ -40,7 +40,7 @@ export default function Home() {
                             {movies.data?.map(
                                 (item: Movie, index: number) => (
                                     <CarouselItem key={index} className="flex flex-col max-w-58 py-3 gap-3">
-                                            <Link to={{ pathname: `movie/${item.id}` }}>
+                                            <Link to={{ pathname: `movie/${item.id}/${item.title}` }}>
                                             <img className="w-56 h-80 rounded-lg hover:scale-105 transition-transform duration-300" src={`${IMAGE_URL}/original${item.poster_path}` || ""} alt={item.title} />
                                             <h2 className="text-lg font-semibold leading-relaxed">{item.title}</h2>
                                     </Link>
@@ -67,8 +67,10 @@ export default function Home() {
                             {topRatedMovie.data?.map(
                                 (item: Movie, index: number) => (
                                     <CarouselItem key={index} className="flex flex-col max-w-58 py-3 gap-3">
-                                        <img className="w-56 h-80 rounded-lg hover:scale-105 transition-transform duration-300" src={`${IMAGE_URL}/original${item.poster_path}` || ""} alt={item.title} />
-                                        <h2 className="text-lg font-semibold leading-relaxed">{item.title}</h2>
+                                        <Link to={{ pathname: `movie/${item.id}/${item.title}` }}>
+                                            <img className="w-56 h-80 rounded-lg hover:scale-105 transition-transform duration-300" src={`${IMAGE_URL}/original${item.poster_path}` || ""} alt={item.title} />
+                                            <h2 className="text-lg font-semibold leading-relaxed">{item.title}</h2>
+                                        </Link>
                                     </CarouselItem>
                                 )
                             )}
@@ -92,8 +94,10 @@ export default function Home() {
                             {upcomingMovie.data?.map(
                                 (item: Movie, index: number) => (
                                     <CarouselItem key={index} className="flex flex-col max-w-58 py-3 gap-3">
-                                        <img className="w-56 h-80 rounded-lg hover:scale-105 transition-transform duration-300" src={`${IMAGE_URL}/original${item.poster_path}` || ""} alt={item.title} />
-                                        <h2 className="text-lg font-semibold leading-relaxed">{item.title}</h2>
+                                        <Link to={{ pathname: `movie/${item.id}/${item.title}` }}>
+                                            <img className="w-56 h-80 rounded-lg hover:scale-105 transition-transform duration-300" src={`${IMAGE_URL}/original${item.poster_path}` || ""} alt={item.title} />
+                                            <h2 className="text-lg font-semibold leading-relaxed">{item.title}</h2>
+                                        </Link>
                                     </CarouselItem>
                                 )
                             )}

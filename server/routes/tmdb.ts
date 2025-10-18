@@ -38,30 +38,6 @@ router.get('/movies/popular', verifyApiKey, async (req: express.Request, res: ex
   }
 });
 
-// Proxy movie details
-router.get('/movies/:id', verifyApiKey, async (req: express.Request, res: express.Response) => {
-  if (!TMDB_API_KEY) {
-    return res.status(500).json({ error: 'Server configuration error: TMDB_API_KEY not set' });
-  }
-  
-  try {
-    const { id } = req.params;
-    const response = await axios.get(`${TMDB_BASE_URL}/movie/${id}`, {
-      params: {
-        api_key: TMDB_API_KEY,
-        language: req.query.language || 'en-US',
-      },
-    });
-    
-    res.json(response.data);
-  } catch (error: any) {
-    console.error(`Error fetching movie details for ID ${req.params.id}:`, error.message);
-    res.status(error.response?.status || 500).json({ 
-      error: error.response?.data || 'Error fetching movie details' 
-    });
-  }
-});
-
 // Proxy top rated movies
 router.get('/movies/top_rated', verifyApiKey, async (req: express.Request, res: express.Response) => {
   if (!TMDB_API_KEY) {
@@ -108,6 +84,54 @@ router.get('/movies/upcoming', verifyApiKey, async (req: express.Request, res: e
     });
   }
 })
+
+// Proxy movie details
+router.get('/movies/:id', verifyApiKey, async (req: express.Request, res: express.Response) => {
+  if (!TMDB_API_KEY) {
+    return res.status(500).json({ error: 'Server configuration error: TMDB_API_KEY not set' });
+  }
+  
+  try {
+    const { id } = req.params;
+    const response = await axios.get(`${TMDB_BASE_URL}/movie/${id}`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: req.query.language || 'en-US',
+      },
+    });
+    
+    res.json(response.data);
+  } catch (error: any) {
+    console.error(`Error fetching movie details for ID ${req.params.id}:`, error.message);
+    res.status(error.response?.status || 500).json({ 
+      error: error.response?.data || 'Error fetching movie details' 
+    });
+  }
+});
+
+// get trailer
+router.get('/movies/:id/trailer', verifyApiKey, async (req: express.Request, res: express.Response) => {
+  if (!TMDB_API_KEY) {
+    return res.status(500).json({ error: 'Server configuration error: TMDB_API_KEY not set' });
+  }
+  
+  try {
+    const { id } = req.params;
+    const response = await axios.get(`${TMDB_BASE_URL}/movie/${id}/videos`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: req.query.language || 'en-US',
+      },
+    });
+    
+    res.json(response.data);
+  } catch (error: any) {
+    console.error(`Error fetching movie details for ID ${req.params.id}:`, error.message);
+    res.status(error.response?.status || 500).json({ 
+      error: error.response?.data || 'Error fetching movie details' 
+    });
+  }
+});
 
 // Proxy search movies
 router.get('/search/movies', verifyApiKey, async (req: express.Request, res: express.Response) => {
