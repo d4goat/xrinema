@@ -133,6 +133,29 @@ router.get('/movies/:id/trailer', verifyApiKey, async (req: express.Request, res
   }
 });
 
+router.get('/movies/:id/credits', verifyApiKey, async (req: express.Request, res: express.Response) => {
+  if(!TMDB_API_KEY){
+    return res.status(500).json({ error: 'Server configuration error: TMDB_API_KEY not set' });
+  }
+
+  try{
+    const { id } = req.params;
+    const response = await axios.get(`${TMDB_BASE_URL}/movie/${id}/credits`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: req.query.language || 'en-US',
+      }
+    })
+
+    res.json(response.data)
+  } catch(err: any) {
+    console.error(`Error fetching movie credits for ID ${req.params.id}:`, err.message);
+    res.status(err.response?.status || 500).json({ 
+      error: err.response?.data || 'Error fetching movie credits' 
+    });
+  }
+})
+
 // Proxy search movies
 router.get('/search/movies', verifyApiKey, async (req: express.Request, res: express.Response) => {
   if (!TMDB_API_KEY) {

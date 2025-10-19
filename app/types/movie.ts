@@ -53,4 +53,28 @@ interface VideoResponse {
     results: Video[];
 }
 
-export type { Movie, MovieDetail, Video, VideoResponse }
+interface Cast {
+    adult: false,
+    cast_id: number;
+    character: string;
+    credit_id: string;
+    gender: number;
+    id: number;
+    known_for_department: string;
+    job: string;
+    name: string;
+    order: number
+    original_name: string;
+    popularity: number;
+    profile_path: string | null;
+}
+
+
+
+interface Credits {
+    id: number;
+    cast: Cast[];
+    crew: Cast[];
+}
+
+export type { Movie, MovieDetail, Video, VideoResponse, Credits, Cast }

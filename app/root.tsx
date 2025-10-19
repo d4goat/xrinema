@@ -42,7 +42,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnReconnect: false,
+      retry: false,
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      networkMode: "always"
+    }
+  }
+})
 
 export default function App() {
   return <QueryClientProvider client={queryClient}>  <Outlet/></QueryClientProvider>;

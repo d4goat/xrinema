@@ -1,6 +1,6 @@
 import axios from "axios"
 import { useQuery } from "@tanstack/react-query"
-import type { Movie, MovieDetail, Video } from "~/types/movie"
+import type { Credits, Movie, MovieDetail, Video } from "~/types/movie"
 
 // Use environment variable for backend proxy URL, default to development URL
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001/api/tmdb"
@@ -23,6 +23,13 @@ export function useMovieTrailer({ id }: { id: number | string }) {
     return useQuery({
         queryKey: ['movie-trailer', id],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/${id}/trailer`).then(res => res.data.results as Video[])
+    })
+}
+
+export function useMovieCredits({ id }: {id: number | string}){
+    return useQuery({
+        queryKey: ['movie-credits', id],
+        queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/${id}/credits`).then(res => res.data as Credits),
     })
 }
 
