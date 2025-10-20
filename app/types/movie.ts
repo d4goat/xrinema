@@ -37,6 +37,19 @@ interface MovieDetail extends Movie{
     tagline: string | null;
 }
 
+interface PersonMovie extends Movie{
+    character: string;
+    credit_id: string;
+    order: number
+}
+
+interface PersonTv extends PersonMovie{
+    origin_country: string[];
+    first_air_date: string;
+    name: string;
+    episode_count: number;
+}
+
 interface Video {
     id: string;
     iso_639_1: string;
@@ -77,4 +90,4 @@ interface Credits {
     crew: Cast[];
 }
 
-export type { Movie, MovieDetail, Video, VideoResponse, Credits, Cast }
+export type { Movie, MovieDetail, Video, VideoResponse, Credits, Cast, PersonMovie, PersonTv }

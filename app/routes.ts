@@ -6,6 +6,7 @@ export default [
         ...prefix("movie/:movie_id/:movie_title", [
             index("./pages/movie-detail.tsx"),
             route("cast", "./pages/movie-credits.tsx")
-        ])
+        ]),
+        route("person/:person_id", "./pages/cast-detail.tsx")
     ]),
 ] satisfies RouteConfig;

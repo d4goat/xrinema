@@ -25,7 +25,7 @@ const navbar = () => {
     return (
         <header>
             <nav id="navbar" className={`px-7 py-5 bg-neutral-900/40 backdrop-blur-xl z-50 flex justify-between fixed w-full transition-all duration-200`}>
-                <h2 className="text-2xl font-bold">D-Moviez</h2>
+                <h2 className="text-2xl font-bold"><a href="/">Xrinema</a></h2>
                 <ul className=" flex gap-7">
                     {nav.map((item, index) => (
                         <li key={index} className="relative group">

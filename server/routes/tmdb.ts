@@ -181,5 +181,74 @@ router.get('/search/movies', verifyApiKey, async (req: express.Request, res: exp
   }
 });
 
+router.get('/person/:id', verifyApiKey, async (req: express.Request, res: express.Response) => {
+  if(!TMDB_API_KEY){
+    return res.status(500).json({ error: 'Server configuration error: TMDB_API_KEY not set' });
+  }
+
+  try {
+    const { id } = req.params;
+    const response = await axios.get(`${TMDB_BASE_URL}/person/${id}`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: req.query.language || 'en-US',
+      }
+    })
+
+    res.json(response.data)
+  } catch(err: any) {
+    console.error(`Error fetching person details for ID ${req.params.id}:`, err.message);
+    res.status(err.response?.status || 500).json({ 
+      error: err.response?.data || 'Error fetching person details' 
+    });
+  }
+})
+
+router.get('/person/:id/movie-credits', verifyApiKey, async (req: express.Request, res: express.Response) => {
+  if(!TMDB_API_KEY){
+    return res.status(500).json({ error: 'Server configuration error: TMDB_API_KEY not set' });
+  }
+
+  try {
+    const { id } = req.params;
+    const response = await axios.get(`${TMDB_BASE_URL}/person/${id}/movie_credits`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: req.query.language || 'en-US',
+      }
+    })
+
+    res.json(response.data)
+  } catch(err: any) {
+    console.error(`Error fetching person movie credits for ID ${req.params.id}:`, err.message);
+    res.status(err.response?.status || 500).json({ 
+      error: err.response?.data || 'Error fetching person movie credits' 
+    });
+  }
+})
+
+router.get('/person/:id/tv-credits', verifyApiKey, async (req: express.Request, res: express.Response) => {
+  if(!TMDB_API_KEY){
+    return res.status(500).json({ error: 'Server configuration error: TMDB_API_KEY not set' });
+  }
+
+  try {
+    const { id } = req.params;
+    const response = await axios.get(`${TMDB_BASE_URL}/person/${id}/tv_credits`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: req.query.language || 'en-US',
+      }
+    })
+
+    res.json(response.data)
+  } catch(err: any) {
+    console.error(`Error fetching person tv credits for ID ${req.params.id}:`, err.message);
+    res.status(err.response?.status || 500).json({ 
+      error: err.response?.data || 'Error fetching person tv credits' 
+    });
+  }
+})
+
 
 export { router as tmdbRoutes };
