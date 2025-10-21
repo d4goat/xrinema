@@ -1,3 +1,5 @@
+import type { Cast, Movie } from "./movie";
+
 interface Person {
     adult: string;
     also_known_as: any[];
@@ -15,4 +17,17 @@ interface Person {
     profile_path: string | null;
 }
 
-export type { Person }
+interface PersonCombined extends Movie {
+    media_type?: 'movie' | 'tv';
+    order: number;
+    departement?: string;
+    job?: string
+    name: string
+} 
+
+interface CombinedCredits {
+    cast: PersonCombined[];
+    crew: PersonCombined[];
+}
+
+export type { Person, PersonCombined, CombinedCredits }

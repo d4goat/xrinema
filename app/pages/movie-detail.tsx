@@ -33,8 +33,8 @@ const MovieDetail = () => {
         }, [movie])
 
         const plugin = react.useRef(
-                Autoplay({ delay: 2000, stopOnInteraction: true })
-            )
+            Autoplay({ delay: 2000, stopOnInteraction: true })
+        )
 
         if (isLoading) {
             return (
@@ -42,6 +42,10 @@ const MovieDetail = () => {
                     <div>Loading movie details...</div>
                 </main>
             )
+        }
+
+        if (error) {
+            return <div className="pt-20 min-h-dvh container mx-auto">Error loading movie details</div>
         }
 
         return (
@@ -58,7 +62,7 @@ const MovieDetail = () => {
                                 className="m-5"
                             ></iframe>
                         </DrawerContent>
-                        <Link to="/"><Button className="mb-3 cursor-pointer bg-transparent border hover:bg-neutral-800/50 transition-colors duration-200"><ArrowLeft/> Back</Button></Link>
+                        <Link to="/"><Button className="mb-3 cursor-pointer bg-transparent border hover:bg-neutral-800/50 transition-colors duration-200"><ArrowLeft /> Back</Button></Link>
                         <Card className="bg-neutral-800/50 text-white border-neutral-500">
                             <CardContent className="flex items-center gap-8">
                                 <img src={`${IMAGE_URL}/original${movie?.poster_path}`} alt={movie?.title} className="w-60 h-88 rounded-lg" />
@@ -90,19 +94,19 @@ const MovieDetail = () => {
                                     {credits?.cast && credits?.cast.length > 10 ? credits?.cast.slice(0, 10).map((item: Cast, index: number) =>
                                     (
                                         <>
-                                        <CarouselItem key={index} className="max-w-64">
-                                            <Card>
-                                                <CardContent>
-                                                <Link to={`/person/${item.id}?name=${encodeURIComponent(item.name)}`} className="flex flex-col gap-3 hover:cursor-pointer">
-                                                    <img className="w-52 h-58 rounded-lg" src={item.profile_path != null ? `${IMAGE_URL}/original/${item.profile_path}` : '../../blank.png'} alt={item.name} />
-                                                    <p className="text-lg font-semibold">{item.name}</p>
-                                                </Link>
-                                                </CardContent>
-                                            </Card>
+                                            <CarouselItem key={index} className="max-w-64">
+                                                <Card>
+                                                    <CardContent>
+                                                        <Link to={`/person/${item.id}?name=${encodeURIComponent(item.name)}`} className="flex flex-col gap-3 hover:cursor-pointer">
+                                                            <img className="w-52 h-58 rounded-lg" src={item.profile_path != null ? `${IMAGE_URL}/original/${item.profile_path}` : '../../blank.png'} alt={item.name} />
+                                                            <p className="text-lg font-semibold">{item.name}</p>
+                                                        </Link>
+                                                    </CardContent>
+                                                </Card>
 
-                                        </CarouselItem>
+                                            </CarouselItem>
                                             {index === 9 ? <Link to={`cast`}>
-                                                <Button variant={"ghost"} className="hover:bg-transparent hover:text-gray-500 hover:cursor-pointer">See More <ArrowRight/></Button>
+                                                <Button variant={"ghost"} className="hover:bg-transparent hover:text-gray-500 hover:cursor-pointer">See More <ArrowRight /></Button>
                                             </Link> : <></>}
                                         </>
                                     )
@@ -110,21 +114,21 @@ const MovieDetail = () => {
                                         <CarouselItem key={index} className="max-w-64">
                                             <Card>
                                                 <CardContent>
-                                                <Link to={`/person/${item.id}?name=${encodeURIComponent(item.name)}`} className="flex flex-col gap-3 hover:cursor-pointer">
-                                                    <img className="w-52 h-58 rounded-lg" src={item.profile_path != null ? `${IMAGE_URL}/original/${item.profile_path}` : '../../blank.png'} alt={item.name} />
-                                                    <p className="text-lg font-semibold">{item.name}</p>
-                                                </Link>
+                                                    <Link to={`/person/${item.id}?name=${encodeURIComponent(item.name)}`} className="flex flex-col gap-3 hover:cursor-pointer">
+                                                        <img className="w-52 h-58 rounded-lg" src={item.profile_path != null ? `${IMAGE_URL}/original/${item.profile_path}` : '../../blank.png'} alt={item.name} />
+                                                        <p className="text-lg font-semibold">{item.name}</p>
+                                                    </Link>
                                                 </CardContent>
                                             </Card>
 
                                             {index === credits.cast.length - 1 ? <Link to={`cast`}>
-                                                <Button variant={"ghost"} className="hover:bg-transparent hover:text-gray-500 hover:cursor-pointer">See More <ArrowRight/></Button>
+                                                <Button variant={"ghost"} className="hover:bg-transparent hover:text-gray-500 hover:cursor-pointer">See More <ArrowRight /></Button>
                                             </Link> : <></>}
                                         </CarouselItem>
                                     ))}
                                 </CarouselContent>
-                                <CarouselNext className="text-black disabled:text-gray-700 hover:cursor-pointer"/>
-                                <CarouselPrevious className="text-black disabled:text-gray-700 hover:cursor-pointer"/>
+                                <CarouselNext />
+                                <CarouselPrevious />
                             </Carousel>
                         </div>
                     </main>

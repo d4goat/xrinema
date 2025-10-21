@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useQuery } from "@tanstack/react-query"
 import type { Credits, Movie, MovieDetail, PersonMovie, PersonTv, Video } from "~/types/movie"
-import type { Person } from "~/types/person"
+import type { CombinedCredits, Person, PersonCombined } from "~/types/person"
 
 // Use environment variable for backend proxy URL, default to development URL
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001/api/tmdb"
@@ -76,6 +76,13 @@ export function usePersonTv({ id }: { id: number | string }){
     return useQuery({
         queryKey: ['person-tv', id],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/person/${id}/tv-credits`).then(res => res.data as PersonTv)
+    })
+}
+
+export function usePersonCombinedCredits({ id }: { id: number | string }){
+    return useQuery({
+        queryKey: ['person-combined', id],
+        queryFn: async () => axios.get(`${BACKEND_BASE_URL}/person/${id}/combined-credits`).then(res => res.data as CombinedCredits)
     })
 }
 

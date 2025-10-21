@@ -250,5 +250,26 @@ router.get('/person/:id/tv-credits', verifyApiKey, async (req: express.Request, 
   }
 })
 
+router.get('/person/:id/combined-credits', verifyApiKey, async (req: express.Request, res: express.Response) => {
+  if(!TMDB_API_KEY){
+    return res.status(500).json({ error: 'Server configuration error: TMDB_API_KEY not set' });
+  }
+
+  try {
+    const { id } = req.params;
+    const response = await axios.get(`${TMDB_BASE_URL}/person/${id}/combined_credits`, {
+      params: {
+        api_key: TMDB_API_KEY
+      }
+    })
+
+    res.json(response.data)
+  } catch(err: any) {
+    console.error(`Error fetching person combined credits for ID ${req.params.id}:`, err.message);
+    res.status(err.response?.status || 500).json({ 
+      error: err.response?.data || 'Error fetching person combined credits' 
+    });
+  }
+})
 
 export { router as tmdbRoutes };
