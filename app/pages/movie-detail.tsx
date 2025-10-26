@@ -1,6 +1,6 @@
 import * as react from "react"
 import { Button } from "~/components/ui/button"
-import { IMAGE_URL, useMovieCredits, useMoviesDetail, useMovieTrailer } from "~/api/tmdb"
+import { IMAGE_URL, useMovieCredits, useMoviesDetail, useMoviesSimilar, useMovieTrailer } from "~/api/tmdb"
 import { Link, useParams } from "react-router"
 import type { Route } from "./+types/movie-detail"
 import { Card, CardContent } from "~/components/ui/card"
@@ -10,6 +10,7 @@ import type { Video, Cast } from "~/types/movie"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "~/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
 import { ArrowLeft, ArrowRight } from "lucide-react"
+import CarouselCard from "~/components/CarouselCard"
 
 export function meta({ }: Route.MetaArgs) {
     const { movie_title } = useParams()
@@ -21,10 +22,14 @@ export function meta({ }: Route.MetaArgs) {
 
 const MovieDetail = () => {
     const { movie_id, movie_title } = useParams()
+    const [page, setPage] = react.useState(1)
+    const [allSimilarMovies, setAllSimilarMovies] = react.useState<any[]>([])
+
     if (movie_id) {
         const { data: movie, isLoading, error } = useMoviesDetail({ id: movie_id })
         const { data: trailer } = useMovieTrailer({ id: movie_id })
         const { data: credits } = useMovieCredits({ id: movie_id })
+        const { data: similar, isLoading: isLoadingSimilar, refetch } = useMoviesSimilar({ id: movie_id, page: page })
 
         react.useEffect(() => {
             if (movie) {
@@ -35,6 +40,46 @@ const MovieDetail = () => {
         const plugin = react.useRef(
             Autoplay({ delay: 2000, stopOnInteraction: true })
         )
+
+           react.useEffect(() => {
+            if (similar?.results) {
+                setAllSimilarMovies(prev => {
+                    // Prevent duplicate berdasarkan ID
+                    const existingIds = new Set(prev.map(m => m.id))
+                    const newMovies = similar.results.filter((m: any) => !existingIds.has(m.id))
+                    
+                    // Hanya tambahkan jika ada data baru
+                    if (newMovies.length > 0) {
+                        console.log(`Added ${newMovies.length} new movies from page ${page}`)
+                        return [...prev, ...newMovies]
+                    }
+                    return prev
+                })
+            }
+        }, [similar, page])
+        
+        react.useEffect(() => {
+            if(page > 1){
+                refetch()
+            }
+        }, [page, refetch])
+
+        const handleLoadMore = react.useCallback(() => {
+            if (similar && page >= similar.total_pages) {
+                console.log('No more pages available')
+                return
+            }
+
+            if (isLoadingSimilar) {
+                console.log('Already loading, please wait')
+                return
+            }
+
+            console.log(`Loading page ${page + 1}...`)
+            setPage(prev => prev + 1)
+        }, [])
+
+        const hasMore = similar ? page < similar.total_pages : false
 
         if (isLoading) {
             return (
@@ -49,9 +94,9 @@ const MovieDetail = () => {
         }
 
         return (
-            <div className="min-h-dvh pb-5" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.9)), url(${IMAGE_URL}/original${movie?.backdrop_path})`, backgroundSize: 'cover' }}>
+            <main className="min-h-dvh pb-5" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.9)), url(${IMAGE_URL}/original${movie?.backdrop_path})`, backgroundSize: 'cover' }}>
                 <Drawer >
-                    <main className="container mx-auto pt-20 space-y-6">
+                    <div className="container mx-auto pt-20 flex flex-col gap-6">
                         <DrawerContent className="bg-neutral-800">
                             <DrawerHeader>
                                 <DrawerTitle className="text-white">{movie?.title} Trailer</DrawerTitle>
@@ -111,29 +156,44 @@ const MovieDetail = () => {
                                         </>
                                     )
                                     ) : credits?.cast.map((item: Cast, index: number) => (
-                                        <CarouselItem key={index} className="max-w-64">
-                                            <Card>
-                                                <CardContent>
-                                                    <Link to={`/person/${item.id}?name=${encodeURIComponent(item.name)}`} className="flex flex-col gap-3 hover:cursor-pointer">
-                                                        <img className="w-52 h-58 rounded-lg" src={item.profile_path != null ? `${IMAGE_URL}/original/${item.profile_path}` : '../../blank.png'} alt={item.name} />
-                                                        <p className="text-lg font-semibold">{item.name}</p>
-                                                    </Link>
-                                                </CardContent>
-                                            </Card>
+                                        <>
+                                            <CarouselItem key={index} className="max-w-64">
+                                                <Card>
+                                                    <CardContent>
+                                                        <Link to={`/person/${item.id}?name=${encodeURIComponent(item.name)}`} className="flex flex-col gap-3 hover:cursor-pointer">
+                                                            <img className="w-52 h-58 rounded-lg" src={item.profile_path != null ? `${IMAGE_URL}/original/${item.profile_path}` : '../../blank.png'} alt={item.name} />
+                                                            <p className="text-lg font-semibold">{item.name}</p>
+                                                        </Link>
+                                                    </CardContent>
+                                                </Card>
 
+                                            </CarouselItem>
                                             {index === credits.cast.length - 1 ? <Link to={`cast`}>
                                                 <Button variant={"ghost"} className="hover:bg-transparent hover:text-gray-500 hover:cursor-pointer">See More <ArrowRight /></Button>
                                             </Link> : <></>}
-                                        </CarouselItem>
+                                        </>
                                     ))}
                                 </CarouselContent>
                                 <CarouselNext />
                                 <CarouselPrevious />
                             </Carousel>
                         </div>
-                    </main>
+
+                        <div className="flex flex-col gap-4 mt-4">
+                            <h1 className="text-2xl font-semibold">Similar Movie</h1>
+                            {allSimilarMovies.length > 0 &&
+                                <CarouselCard
+                                    item={allSimilarMovies}
+                                    useNext={true}
+                                    onLoadMore={handleLoadMore}
+                                    hasMore={hasMore}
+                                    isLoadingMore={isLoadingSimilar && page > 1}
+                                />
+                            }
+                        </div>
+                    </div>
                 </Drawer>
-            </div>
+            </main>
         )
     }
     return (

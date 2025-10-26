@@ -54,11 +54,11 @@ const CastDetail = () => {
         }
 
         if (error) {
-            return <div className="pt-20 min-h-dvh container mx-auto">Error loading movie details</div>
+            return <div className="pt-20 min-h-dvh container mx-auto">Error loading person details</div>
         }
 
         return (
-            <main className="pt-24 mb-10 container mx-auto  min-h-dvh">
+            <main className="pt-24 mb-10 container mx-auto min-h-dvh">
                 <div className="flex gap-10">
                     <div className="flex flex-col gap-6">
                         <img src={`${IMAGE_URL}/original${person?.profile_path}`} className="w-80 h-[30rem] rounded-lg" alt="" />
@@ -101,7 +101,7 @@ const CastDetail = () => {
 
                     </div>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-3 mt-5">
                     <h2 className="text-xl font-semibold">Known For</h2>
                     <Carousel plugins={[plugin.current]} onMouseEnter={plugin.current.stop} onMouseLeave={plugin.current.reset}>
                         <CarouselContent className="mx-6 flex items-center">
@@ -111,7 +111,7 @@ const CastDetail = () => {
                                         <img className="w-52 h-72 rounded-lg object-cover hover:scale-105 transition-transform duration-300" src={item.poster_path != null ? `${IMAGE_URL}/original${item.poster_path}` : "../../../public/movie.jpg"} alt="" />
                                         <span>{item.title ? item.title : item.name}</span>
                                 </CarouselItem>
-                                    {index === 14 ? <Link to={``}><Button>See More <ArrowRight /></Button></Link> : <></>}
+                                    {index === orderedCredits.length - 1 ? <Link to={`/person/${person?.id}/more-movie?name=${person?.name}`}><Button className="hover:text-gray-400 transition-colors duration-200">See More <ArrowRight /></Button></Link> : <></>}
                                 </>
                             ))}
                         </CarouselContent>

@@ -1,10 +1,17 @@
 import axios from "axios"
-import { useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import type { Credits, Movie, MovieDetail, PersonMovie, PersonTv, Video } from "~/types/movie"
 import type { CombinedCredits, Person, PersonCombined } from "~/types/person"
 
 // Use environment variable for backend proxy URL, default to development URL
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001/api/tmdb"
+
+interface Similar {
+    page: number
+    results: MovieDetail[]
+    total_pages: number
+    total_results: number
+}
 
 export function usePopularMovies(){
     return useQuery({
@@ -17,6 +24,14 @@ export function useMoviesDetail({id}: {id: number | string}){
     return useQuery({
         queryKey: [`movie-detail`, id],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/${id}`).then(res => res.data as MovieDetail)
+    })
+}
+
+export function useMoviesSimilar({id, page}: {id: number | string, page: number}){
+    return useQuery({
+        queryKey: [`movie-similar-${id}-${page}`],
+        queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/${id}/similar?page=${page}`).then(res => res.data as Similar),
+        placeholderData: keepPreviousData
     })
 }
 
