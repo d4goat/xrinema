@@ -13,21 +13,28 @@ interface Similar {
     total_results: number
 }
 
-export function usePopularMovies(){
+export function usePopularMovies() {
     return useQuery({
         queryKey: ['popular-movies'],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/popular`).then(res => res.data.results)
     })
 }
 
-export function useMoviesDetail({id}: {id: number | string}){
+export function useMoviesDetail({ id }: { id: number | string }) {
     return useQuery({
         queryKey: [`movie-detail`, id],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/${id}`).then(res => res.data as MovieDetail)
     })
 }
 
-export function useMoviesSimilar({id, page}: {id: number | string, page: number}){
+export function useMovieKeywords({ id }: { id: number | string }) {
+    return useQuery({
+        queryKey: ['movie-keywords', id],
+        queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/${id}/keywords`).then(res => res.data.keywords as { id: number, keywords: [{ id: number, name: string }] })
+    })
+}
+
+export function useMoviesSimilar({ id, page }: { id: number | string, page: number }) {
     return useQuery({
         queryKey: [`movie-similar-${id}-${page}`],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/${id}/similar?page=${page}`).then(res => res.data as Similar),
@@ -42,21 +49,21 @@ export function useMovieTrailer({ id }: { id: number | string }) {
     })
 }
 
-export function useMovieCredits({ id }: {id: number | string}){
+export function useMovieCredits({ id }: { id: number | string }) {
     return useQuery({
         queryKey: ['movie-credits', id],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/${id}/credits`).then(res => res.data as Credits),
     })
 }
 
-export function useMoviesTopRated(){
+export function useMoviesTopRated() {
     return useQuery({
         queryKey: ['top-rated-movies'],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/top_rated`).then(res => res.data.results)
     })
 }
 
-export function useUpcomingMovie(){
+export function useUpcomingMovie() {
     return useQuery({
         queryKey: ['upcoming-movies'],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/upcoming`).then(res => res.data.results)
@@ -73,28 +80,28 @@ export function useSearchMovies(query: string) {
     })
 }
 
-export function usePersonDetail({ id }: { id: number | string }){
+export function usePersonDetail({ id }: { id: number | string }) {
     return useQuery({
         queryKey: ['person-detail', id],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/person/${id}`).then(res => res.data as Person)
     })
 }
 
-export function usePersonMovie({ id }: { id: number | string }){
+export function usePersonMovie({ id }: { id: number | string }) {
     return useQuery({
         queryKey: ['person-movie', id],
-        queryFn: async () => axios.get(`${BACKEND_BASE_URL}/person/${id}/movie-credits`).then(res => res.data as PersonMovie)
+        queryFn: async () => axios.get(`${BACKEND_BASE_URL}/person/${id}/movie_credits`).then(res => res.data as PersonMovie)
     })
 }
 
-export function usePersonTv({ id }: { id: number | string }){
+export function usePersonTv({ id }: { id: number | string }) {
     return useQuery({
         queryKey: ['person-tv', id],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/person/${id}/tv-credits`).then(res => res.data as PersonTv)
     })
 }
 
-export function usePersonCombinedCredits({ id }: { id: number | string }){
+export function usePersonCombinedCredits({ id }: { id: number | string }) {
     return useQuery({
         queryKey: ['person-combined', id],
         queryFn: async () => axios.get(`${BACKEND_BASE_URL}/person/${id}/combined-credits`).then(res => res.data as CombinedCredits)

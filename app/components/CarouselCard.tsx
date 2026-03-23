@@ -4,6 +4,7 @@ import * as react from "react"
 import { Link } from "react-router";
 import { IMAGE_URL } from "~/api/tmdb";
 import { Skeleton } from "./ui/skeleton";
+import { motion } from 'framer-motion'
 
 type CarouselCardProps = {
     autoplay?: boolean;
@@ -15,7 +16,7 @@ type CarouselCardProps = {
     isLoadingMore?: boolean
 }
 
-const LazyCarouseItem = ({item}: { item: any }) => {
+const LazyCarouseItem = ({ item, index }: { item: any, index: number }) => {
     const [isVisible, setIsVisible] = react.useState(false)
     const [hasError, setHasError] = react.useState(false)
     const imgRef = react.useRef<HTMLDivElement>(null)
@@ -24,24 +25,24 @@ const LazyCarouseItem = ({item}: { item: any }) => {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    if(entry.isIntersecting) {
+                    if (entry.isIntersecting) {
                         setIsVisible(true)
                         observer.disconnect()
                     }
                 })
             }, {
-                rootMargin: '50px',
-                threshold: 0.01
-            }
+            rootMargin: '50px',
+            threshold: 0.01
+        }
         )
 
-        if(imgRef.current) observer.observe(imgRef.current);
+        if (imgRef.current) observer.observe(imgRef.current);
 
         return () => observer.disconnect()
     }, [])
 
     return (
-        <div ref={imgRef} className="space-y-3">
+        <motion.div ref={imgRef} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="space-y-3">
             <div className="relative w-56 h-80">
                 {!isVisible ? (
                     <Skeleton className="w-56 h-80"></Skeleton>
@@ -54,7 +55,7 @@ const LazyCarouseItem = ({item}: { item: any }) => {
                 )}
             </div>
             <h2 className="text-lg font-semibold leading-relaxed">{item.title}</h2>
-        </div>
+        </motion.div>
     )
 }
 
@@ -62,8 +63,7 @@ const CarouselCard: react.FC<CarouselCardProps> = ({ autoplay = false, item, see
     onLoadMore,
     hasMore = false,
     isLoadingMore = false
-
- }) => {
+}) => {
 
     const [api, setApi] = react.useState<CarouselApi>()
     const [currentIndex, setCurrentIndex] = react.useState(0)
@@ -73,13 +73,13 @@ const CarouselCard: react.FC<CarouselCardProps> = ({ autoplay = false, item, see
     )
 
     const handlerMouseEnter = react.useCallback(() => {
-        if(autoplay) {
+        if (autoplay) {
             plugin.current.stop()
         }
     }, [autoplay])
 
     const handlerMouseLeave = react.useCallback(() => {
-        if(autoplay) {
+        if (autoplay) {
             plugin.current.reset()
         }
     }, [autoplay])
@@ -100,7 +100,7 @@ const CarouselCard: react.FC<CarouselCardProps> = ({ autoplay = false, item, see
         }
     }, [api])
 
-     react.useEffect(() => {
+    react.useEffect(() => {
         const totalItems = item.length
         const threshold = Math.max(totalItems - 5, 0) // Trigger 5 item sebelum akhir
 
@@ -111,9 +111,9 @@ const CarouselCard: react.FC<CarouselCardProps> = ({ autoplay = false, item, see
 
         // Trigger load more
         if (
-            currentIndex >= threshold && 
-            hasMore && 
-            !isLoadingMore && 
+            currentIndex >= threshold &&
+            hasMore &&
+            !isLoadingMore &&
             !hasTriggeredLoadMore.current &&
             onLoadMore
         ) {
@@ -123,21 +123,21 @@ const CarouselCard: react.FC<CarouselCardProps> = ({ autoplay = false, item, see
     }, [currentIndex, item.length, hasMore, isLoadingMore, onLoadMore])
 
     return (
-        <Carousel 
+        <Carousel
             setApi={setApi}
-            plugins={autoplay ? [plugin.current] : undefined} 
+            plugins={autoplay ? [plugin.current] : undefined}
             onMouseEnter={handlerMouseEnter}
             onMouseLeave={handlerMouseLeave}
         >
             <CarouselContent className={`mx-6 ${seeMore ? 'flex items-center' : ''}`}>
                 {item.map((item, index) => (
                     <CarouselItem className="max-w-58 py-3" key={`${item.id}-${index}`}>
-                        <Link to={{ pathname: `movie/${item.id}/${item.title}` }}>
-                            <LazyCarouseItem item={item} />
+                        <Link to={`movie/${item.id}/${encodeURIComponent(item.title)}`}>
+                            <LazyCarouseItem index={index} item={item} />
                         </Link>
                     </CarouselItem>
                 ))}
-                
+
                 {/* Loading indicator */}
                 {isLoadingMore && (
                     <CarouselItem className="max-w-58 py-3">
@@ -152,7 +152,7 @@ const CarouselCard: react.FC<CarouselCardProps> = ({ autoplay = false, item, see
             </CarouselContent>
             {useNext && (
                 <>
-                    <CarouselNext />
+                    <CarouselNext disabled={isLoadingMore} />
                     <CarouselPrevious />
                 </>
             )}

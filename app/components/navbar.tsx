@@ -7,17 +7,21 @@ interface navItem {
 }
 
 const navbar = () => {
-        const nav: navItem[] = [
+    const nav: navItem[] = [
         {
             name: "Home",
             link: '/'
         },
         {
-            name: "Menu",
+            name: "Trending",
             link: '/'
         },
         {
-            name: "About",
+            name: "Top Rated",
+            link: '/about'
+        },
+        {
+            name: "Upcoming",
             link: '/about'
         },
     ]
@@ -30,7 +34,7 @@ const navbar = () => {
                     {nav.map((item, index) => (
                         <li key={index} className="relative group">
                             <Link to={item.link} className="">{item.name}</Link>
-                            <span className="block h-0.5 bg-white max-w-0 group-hover:max-w-full transition-all duration-300"/>
+                            <span className="block h-0.5 bg-white max-w-0 group-hover:max-w-full transition-all duration-300" />
                         </li>
                     ))}
                 </ul>

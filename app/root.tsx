@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/reac
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -34,9 +35,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
+        <TooltipProvider>
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+        </TooltipProvider>
       </body>
     </html>
   );
@@ -55,7 +58,7 @@ const queryClient = new QueryClient({
 })
 
 export default function App() {
-  return <QueryClientProvider client={queryClient}>  <Outlet/></QueryClientProvider>;
+  return <QueryClientProvider client={queryClient}>  <Outlet /></QueryClientProvider>;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

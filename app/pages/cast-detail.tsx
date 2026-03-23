@@ -7,8 +7,9 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import Autoplay from "embla-carousel-autoplay";
 import type { Cast, PersonTv } from "~/types/movie";
 import type { CombinedCredits, PersonCombined } from "~/types/person";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import _ from "lodash";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 
 export async function loader({ params, request }: Route.LoaderArgs) {
     const url = new URL(request.url);
@@ -39,11 +40,22 @@ const CastDetail = () => {
         )
 
         const orderedCredits = react.useMemo(() => {
-            if(!credits?.cast) return [];
+            if (!credits?.cast) return [];
 
-            const sorted = _.orderBy(credits?.cast, ['popularity'], ['desc']).slice(0, 15);
+            const unique = _.uniqBy(credits.cast, 'id');
+            const sorted = _.orderBy(unique, ['popularity'], ['desc']).slice(0, 15);
             return sorted
         }, [credits])
+
+        const groupedCredits = react.useMemo(() => {
+            if (!credits?.cast) return {}
+
+            const unique = _.uniqBy(credits.cast, 'id')
+            const grouped = _.groupBy(unique, 'media_type')
+            return grouped
+        }, [credits])
+
+        react.useEffect(() => console.table(groupedCredits), [credits])
 
         if (isLoading) {
             return (
@@ -101,23 +113,51 @@ const CastDetail = () => {
 
                     </div>
                 </div>
-                <div className="space-y-3 mt-5">
+                <div className="space-y-3 mt-5 p-6 md:p-4">
                     <h2 className="text-xl font-semibold">Known For</h2>
                     <Carousel plugins={[plugin.current]} onMouseEnter={plugin.current.stop} onMouseLeave={plugin.current.reset}>
                         <CarouselContent className="mx-6 flex items-center">
                             {orderedCredits.map((item: PersonCombined, index: number) => (
-                                <>
-                                <CarouselItem className="max-w-62 space-y-2" key={index}>
+                                <react.Fragment key={index}>
+                                    <CarouselItem className="max-w-62 space-y-2">
                                         <img className="w-52 h-72 rounded-lg object-cover hover:scale-105 transition-transform duration-300" src={item.poster_path != null ? `${IMAGE_URL}/original${item.poster_path}` : "../../../public/movie.jpg"} alt="" />
                                         <span>{item.title ? item.title : item.name}</span>
-                                </CarouselItem>
+                                    </CarouselItem>
                                     {index === orderedCredits.length - 1 ? <Link to={`/person/${person?.id}/more-movie?name=${person?.name}`}><Button className="hover:text-gray-400 transition-colors duration-200">See More <ArrowRight /></Button></Link> : <></>}
-                                </>
+                                </react.Fragment>
                             ))}
                         </CarouselContent>
                         <CarouselNext />
                         <CarouselPrevious />
                     </Carousel>
+                </div>
+
+                <div className="space-y-3  mt-10">
+                    <div className="flex justify-between items-center">
+                        <h2 className="font-semibold text-xl">Acting</h2>
+
+                        <div className="flex items-center gap-3">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button>All <ChevronDown /></Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <div>Movies ({groupedCredits?.movie?.length || 0})</div>
+                                    <div>TV Shows ({groupedCredits?.tv?.length || 0})</div>
+                                </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button>Department <ChevronDown /></Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <div>Acting</div>
+                                    <div>Writting</div>
+                                    <div>Production</div>
+                                </TooltipContent>
+                            </Tooltip>
+                        </div>
+                    </div>
                 </div>
             </main>
         )

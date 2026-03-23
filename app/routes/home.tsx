@@ -1,7 +1,7 @@
 import type { Route } from "./+types/home";
-import Welcome from "../welcome/welcome";
+import Welcome from "../dashboard";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "Welcome to Xrinema" },
     { name: "description", content: "A website showing the latest movies!" },

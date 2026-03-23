@@ -1,9 +1,9 @@
 import * as react from "react"
 import { Button } from "~/components/ui/button"
-import { IMAGE_URL, useMovieCredits, useMoviesDetail, useMoviesSimilar, useMovieTrailer } from "~/api/tmdb"
+import { IMAGE_URL, useMovieCredits, useMoviesDetail, useMoviesSimilar, useMovieTrailer, useMovieKeywords } from "~/api/tmdb"
 import { Link, useParams } from "react-router"
 import type { Route } from "./+types/movie-detail"
-import { Card, CardContent } from "~/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
 import moment from "moment"
 import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "~/components/ui/drawer"
 import type { Video, Cast } from "~/types/movie"
@@ -20,6 +20,25 @@ export function meta({ }: Route.MetaArgs) {
     ]
 }
 
+const movieMoreInfoData = [
+    {
+        title: 'Movie Status',
+        key: 'status'
+    },
+    {
+        title: 'Original Language',
+        key: 'original_language'
+    },
+    {
+        title: 'Movie Budget',
+        key: 'budget'
+    },
+    {
+        title: 'Movie Revenue',
+        key: 'revenue'
+    },
+] as const
+
 const MovieDetail = () => {
     const { movie_id, movie_title } = useParams()
     const [page, setPage] = react.useState(1)
@@ -27,6 +46,7 @@ const MovieDetail = () => {
 
     if (movie_id) {
         const { data: movie, isLoading, error } = useMoviesDetail({ id: movie_id })
+        const { data: keywords, isLoading: isLoadingKeywords } = useMovieKeywords({ id: movie_id })
         const { data: trailer } = useMovieTrailer({ id: movie_id })
         const { data: credits } = useMovieCredits({ id: movie_id })
         const { data: similar, isLoading: isLoadingSimilar, refetch } = useMoviesSimilar({ id: movie_id, page: page })
@@ -41,13 +61,13 @@ const MovieDetail = () => {
             Autoplay({ delay: 2000, stopOnInteraction: true })
         )
 
-           react.useEffect(() => {
+        react.useEffect(() => {
             if (similar?.results) {
                 setAllSimilarMovies(prev => {
                     // Prevent duplicate berdasarkan ID
                     const existingIds = new Set(prev.map(m => m.id))
                     const newMovies = similar.results.filter((m: any) => !existingIds.has(m.id))
-                    
+
                     // Hanya tambahkan jika ada data baru
                     if (newMovies.length > 0) {
                         console.log(`Added ${newMovies.length} new movies from page ${page}`)
@@ -57,9 +77,9 @@ const MovieDetail = () => {
                 })
             }
         }, [similar, page])
-        
+
         react.useEffect(() => {
-            if(page > 1){
+            if (page > 1) {
                 refetch()
             }
         }, [page, refetch])
@@ -89,7 +109,7 @@ const MovieDetail = () => {
             )
         }
 
-        if (error) {
+        if (error || movie == null || movie == undefined) {
             return <div className="pt-20 min-h-dvh container mx-auto">Error loading movie details</div>
         }
 
@@ -132,46 +152,31 @@ const MovieDetail = () => {
                             </CardContent>
                         </Card>
 
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4 p-4">
                             <h1 className="text-2xl font-bold">Cast Info</h1>
                             <Carousel plugins={[plugin.current]} onMouseEnter={plugin.current.stop} onMouseLeave={plugin.current.reset}>
                                 <CarouselContent className="mx-6 flex items-center">
-                                    {credits?.cast && credits?.cast.length > 10 ? credits?.cast.slice(0, 10).map((item: Cast, index: number) =>
-                                    (
-                                        <>
-                                            <CarouselItem key={index} className="max-w-64">
+                                    {credits?.cast?.slice(0, 10).map((item: Cast, index: number, arr: Cast[]) => (
+                                        <react.Fragment key={item.id}>
+                                            <CarouselItem className="max-w-64">
                                                 <Card>
                                                     <CardContent>
                                                         <Link to={`/person/${item.id}?name=${encodeURIComponent(item.name)}`} className="flex flex-col gap-3 hover:cursor-pointer">
                                                             <img className="w-52 h-58 rounded-lg" src={item.profile_path != null ? `${IMAGE_URL}/original/${item.profile_path}` : '../../blank.png'} alt={item.name} />
-                                                            <p className="text-lg font-semibold">{item.name}</p>
+                                                            <div>
+                                                                <p className="text-lg font-semibold">{item.name}</p>
+                                                                <p className="text-neutral-200 text-sm">{item.character}</p>
+                                                            </div>
                                                         </Link>
                                                     </CardContent>
                                                 </Card>
-
                                             </CarouselItem>
-                                            {index === 9 ? <Link to={`cast`}>
-                                                <Button variant={"ghost"} className="hover:bg-transparent hover:text-gray-500 hover:cursor-pointer">See More <ArrowRight /></Button>
-                                            </Link> : <></>}
-                                        </>
-                                    )
-                                    ) : credits?.cast.map((item: Cast, index: number) => (
-                                        <>
-                                            <CarouselItem key={index} className="max-w-64">
-                                                <Card>
-                                                    <CardContent>
-                                                        <Link to={`/person/${item.id}?name=${encodeURIComponent(item.name)}`} className="flex flex-col gap-3 hover:cursor-pointer">
-                                                            <img className="w-52 h-58 rounded-lg" src={item.profile_path != null ? `${IMAGE_URL}/original/${item.profile_path}` : '../../blank.png'} alt={item.name} />
-                                                            <p className="text-lg font-semibold">{item.name}</p>
-                                                        </Link>
-                                                    </CardContent>
-                                                </Card>
-
-                                            </CarouselItem>
-                                            {index === credits.cast.length - 1 ? <Link to={`cast`}>
-                                                <Button variant={"ghost"} className="hover:bg-transparent hover:text-gray-500 hover:cursor-pointer">See More <ArrowRight /></Button>
-                                            </Link> : <></>}
-                                        </>
+                                            {index === arr.length - 1 && (
+                                                <Link to={`cast`}>
+                                                    <Button variant={"ghost"} className="hover:bg-transparent hover:text-gray-500 hover:cursor-pointer">See More <ArrowRight /></Button>
+                                                </Link>
+                                            )}
+                                        </react.Fragment>
                                     ))}
                                 </CarouselContent>
                                 <CarouselNext />
@@ -179,7 +184,26 @@ const MovieDetail = () => {
                             </Carousel>
                         </div>
 
-                        <div className="flex flex-col gap-4 mt-4">
+                        <Card>
+                            <CardHeader><CardTitle>More {movie.title} Info</CardTitle></CardHeader>
+                            <CardContent>
+                                <div className="space-y-2">
+                                    {movieMoreInfoData.map((item, index) => (
+                                        <react.Fragment key={`${item.title}-${index}`}>
+                                            <h3 className="font-semibold">{item.title}</h3>
+                                            <p className="text-sm">{movie[item.key]}</p>
+                                        </react.Fragment>
+                                    ))}
+                                </div>
+                                {keywords?.keywords.map((item) => (
+                                    <react.Fragment key={item.id}>
+                                        <h3 className="font-semibold">{item.name}</h3>
+                                    </react.Fragment>
+                                ))}
+                            </CardContent>
+                        </Card>
+
+                        <div className="flex flex-col gap-4 mt-4 p-4">
                             <h1 className="text-2xl font-semibold">Similar Movie</h1>
                             {allSimilarMovies.length > 0 &&
                                 <CarouselCard
