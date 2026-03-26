@@ -30,7 +30,7 @@ export function useMoviesDetail({ id }: { id: number | string }) {
 export function useMovieKeywords({ id }: { id: number | string }) {
     return useQuery({
         queryKey: ['movie-keywords', id],
-        queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/${id}/keywords`).then(res => res.data.keywords as { id: number, keywords: [{ id: number, name: string }] })
+        queryFn: async () => axios.get(`${BACKEND_BASE_URL}/movies/${id}/keywords`).then(res => res.data as { id: number, keywords: [{ id: number, name: string }] })
     })
 }
 

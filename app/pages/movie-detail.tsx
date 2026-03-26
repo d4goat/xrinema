@@ -9,8 +9,9 @@ import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, Drawer
 import type { Video, Cast } from "~/types/movie"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "~/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+import { ArrowRight, ChevronLeft } from "lucide-react"
 import CarouselCard from "~/components/CarouselCard"
+import { Badge } from "~/components/ui/badge"
 
 export function meta({ }: Route.MetaArgs) {
     const { movie_title } = useParams()
@@ -50,12 +51,6 @@ const MovieDetail = () => {
         const { data: trailer } = useMovieTrailer({ id: movie_id })
         const { data: credits } = useMovieCredits({ id: movie_id })
         const { data: similar, isLoading: isLoadingSimilar, refetch } = useMoviesSimilar({ id: movie_id, page: page })
-
-        react.useEffect(() => {
-            if (movie) {
-                console.log(movie)
-            }
-        }, [movie])
 
         const plugin = react.useRef(
             Autoplay({ delay: 2000, stopOnInteraction: true })
@@ -101,7 +96,12 @@ const MovieDetail = () => {
 
         const hasMore = similar ? page < similar.total_pages : false
 
-        if (isLoading) {
+        if (movie) {
+            movie.budget = movie.budget === 0 ? '-' : movie.budget
+            movie.revenue = movie.revenue === 0 ? '-' : movie.revenue
+        }
+
+        if (isLoading || isLoadingKeywords) {
             return (
                 <main className="pt-20 p-4 min-h-dvh container mx-auto">
                     <div>Loading movie details...</div>
@@ -109,7 +109,8 @@ const MovieDetail = () => {
             )
         }
 
-        if (error || movie == null || movie == undefined) {
+        if (error || movie == null || movie == undefined || keywords == undefined || keywords.keywords == undefined) {
+            console.log(keywords?.keywords)
             return <div className="pt-20 min-h-dvh container mx-auto">Error loading movie details</div>
         }
 
@@ -127,8 +128,8 @@ const MovieDetail = () => {
                                 className="m-5"
                             ></iframe>
                         </DrawerContent>
-                        <Link to="/"><Button className="mb-3 cursor-pointer bg-transparent border hover:bg-neutral-800/50 transition-colors duration-200"><ArrowLeft /> Back</Button></Link>
-                        <Card className="bg-neutral-800/50 text-white border-neutral-500">
+                        <Link to="/"><Button className="mb-3 cursor-pointer"><ChevronLeft /> Back</Button></Link>
+                        <Card>
                             <CardContent className="flex items-center gap-8">
                                 <img src={`${IMAGE_URL}/original${movie?.poster_path}`} alt={movie?.title} className="w-60 h-88 rounded-lg" />
                                 <div className="flex flex-col flex-1 gap-4">
@@ -152,57 +153,64 @@ const MovieDetail = () => {
                             </CardContent>
                         </Card>
 
-                        <div className="flex flex-col gap-4 p-4">
-                            <h1 className="text-2xl font-bold">Cast Info</h1>
-                            <Carousel plugins={[plugin.current]} onMouseEnter={plugin.current.stop} onMouseLeave={plugin.current.reset}>
-                                <CarouselContent className="mx-6 flex items-center">
-                                    {credits?.cast?.slice(0, 10).map((item: Cast, index: number, arr: Cast[]) => (
-                                        <react.Fragment key={item.id}>
-                                            <CarouselItem className="max-w-64">
-                                                <Card>
-                                                    <CardContent>
-                                                        <Link to={`/person/${item.id}?name=${encodeURIComponent(item.name)}`} className="flex flex-col gap-3 hover:cursor-pointer">
-                                                            <img className="w-52 h-58 rounded-lg" src={item.profile_path != null ? `${IMAGE_URL}/original/${item.profile_path}` : '../../blank.png'} alt={item.name} />
-                                                            <div>
-                                                                <p className="text-lg font-semibold">{item.name}</p>
-                                                                <p className="text-neutral-200 text-sm">{item.character}</p>
-                                                            </div>
-                                                        </Link>
-                                                    </CardContent>
-                                                </Card>
-                                            </CarouselItem>
-                                            {index === arr.length - 1 && (
-                                                <Link to={`cast`}>
-                                                    <Button variant={"ghost"} className="hover:bg-transparent hover:text-gray-500 hover:cursor-pointer">See More <ArrowRight /></Button>
-                                                </Link>
-                                            )}
-                                        </react.Fragment>
-                                    ))}
-                                </CarouselContent>
-                                <CarouselNext />
-                                <CarouselPrevious />
-                            </Carousel>
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className="flex flex-col gap-4 w-full col-span-2">
+                                <h1 className="text-2xl font-bold">Cast Info</h1>
+                                <Carousel className="mx-12" plugins={[plugin.current]} onMouseEnter={plugin.current.stop} onMouseLeave={plugin.current.reset}>
+                                    <CarouselContent className="mx-6 flex items-center">
+                                        {credits?.cast?.slice(0, 10).map((item: Cast, index: number, arr: Cast[]) => (
+                                            <react.Fragment key={item.id}>
+                                                <CarouselItem className="max-w-52">
+                                                    <Link to={`/person/${item.id}?name=${encodeURIComponent(item.name)}`} className="hover:cursor-pointer">
+                                                        <Card className="pt-0 border-none gap-2">
+                                                            <CardHeader className="!p-0">
+                                                                <img className="h-60 w-full rounded-t-lg" src={item.profile_path != null ? `${IMAGE_URL}/original/${item.profile_path}` : '../../blank.png'} alt={item.name} />
+                                                            </CardHeader>
+                                                            <CardContent className="p-2">
+                                                                <div>
+                                                                    <p className="font-semibold text-">{item.name}</p>
+                                                                    <p className="text-primary/80 text-sm">as <br />{item.character}</p>
+                                                                </div>
+                                                            </CardContent>
+                                                        </Card>
+                                                    </Link>
+                                                </CarouselItem>
+                                                {index === arr.length - 1 && (
+                                                    <Link to={`cast`}>
+                                                        <Button variant={"ghost"} className="ml-3">See More <ArrowRight /></Button>
+                                                    </Link>
+                                                )}
+                                            </react.Fragment>
+                                        ))}
+                                    </CarouselContent>
+                                    <CarouselNext />
+                                    <CarouselPrevious />
+                                </Carousel>
+                            </div>
+
+                            <Card>
+                                <CardHeader><CardTitle>More {movie.title} Info</CardTitle></CardHeader>
+                                <CardContent>
+                                    <div className="space-y-2">
+                                        {movieMoreInfoData.map((item, index) => (
+                                            <react.Fragment key={`${item.title}-${index}`}>
+                                                <h3 className="font-semibold">{item.title}</h3>
+                                                <p className="text-sm">{item.key === 'budget' || item.key === 'revenue' ? `$ ${movie[item.key]}` : movie[item.key]}</p>
+                                            </react.Fragment>
+                                        ))}
+                                    </div>
+                                    <h3 className="font-semibold">Keywords</h3>
+                                    <div className="flex gap-2 flex-wrap mt-2">
+                                        {keywords?.keywords.map((item) => (
+                                            <react.Fragment key={item.id}>
+                                                <Badge className="text-sm">{item.name}</Badge>
+                                            </react.Fragment>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+
                         </div>
-
-                        <Card>
-                            <CardHeader><CardTitle>More {movie.title} Info</CardTitle></CardHeader>
-                            <CardContent>
-                                <div className="space-y-2">
-                                    {movieMoreInfoData.map((item, index) => (
-                                        <react.Fragment key={`${item.title}-${index}`}>
-                                            <h3 className="font-semibold">{item.title}</h3>
-                                            <p className="text-sm">{movie[item.key]}</p>
-                                        </react.Fragment>
-                                    ))}
-                                </div>
-                                {keywords?.keywords.map((item) => (
-                                    <react.Fragment key={item.id}>
-                                        <h3 className="font-semibold">{item.name}</h3>
-                                    </react.Fragment>
-                                ))}
-                            </CardContent>
-                        </Card>
-
                         <div className="flex flex-col gap-4 mt-4 p-4">
                             <h1 className="text-2xl font-semibold">Similar Movie</h1>
                             {allSimilarMovies.length > 0 &&

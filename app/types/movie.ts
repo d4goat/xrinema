@@ -5,7 +5,7 @@ interface Company {
     origin_country: string
 }
 
-interface Movie{
+interface Movie {
     id: number;
     adult: boolean;
     backdrop_path: string | null;
@@ -22,28 +22,28 @@ interface Movie{
     vote_count: number;
 }
 
-interface MovieDetail extends Movie{
-    genres?: {id: number, name: string}[];
+interface MovieDetail extends Movie {
+    genres?: { id: number, name: string }[];
     runtime: number;
-    budget: number;
+    budget: number | string;
     homepage: string | null;
     imdb_id: number | string;
     origin_country: string[]
     production_companies: Company[];
     production_countries: { iso_3166_1: string, name: string }[];
-    revenue: number;
+    revenue: number | string;
     spoken_languages: { english_name: string, iso_639_1: string, name: string }[];
     status: string;
     tagline: string | null;
 }
 
-interface PersonMovie extends Movie{
+interface PersonMovie extends Movie {
     character: string;
     credit_id: string;
     order: number
 }
 
-interface PersonTv extends PersonMovie{
+interface PersonTv extends PersonMovie {
     origin_country: string[];
     first_air_date: string;
     name: string;

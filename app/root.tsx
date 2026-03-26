@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/reac
 import type { Route } from "./+types/root";
 import "./app.css";
 import { TooltipProvider } from "./components/ui/tooltip";
+import { ThemeProvider } from "./components/theme-provider";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -58,7 +59,7 @@ const queryClient = new QueryClient({
 })
 
 export default function App() {
-  return <QueryClientProvider client={queryClient}>  <Outlet /></QueryClientProvider>;
+  return <ThemeProvider defaultTheme="dark" storageKey="ui-theme"><QueryClientProvider client={queryClient}>  <Outlet /></QueryClientProvider></ThemeProvider>
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
